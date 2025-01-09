@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 	"regexp"
+	"res-gin/src/config"
+	"res-gin/src/router"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -38,6 +40,12 @@ func main() {
 	port := ":" + os.Getenv("PORT")
 	globalPrefix := "api/v1"
 
+	db, err := config.DBConnection()
+
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
+	}
+
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
 	r.SetTrustedProxies([]string{"103.150.190.175", "127.0.0.1"})
@@ -63,6 +71,8 @@ func main() {
 			})
 		})
 	}
+
+	router.SetupRouter(api, db)
 
 	log.Infof("🚀 Application listening on http://localhost%s/%s", port, globalPrefix)
 
