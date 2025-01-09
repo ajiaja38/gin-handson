@@ -35,7 +35,7 @@ func init() {
 }
 
 func main() {
-	port := ":3000"
+	port := ":" + os.Getenv("PORT")
 	globalPrefix := "api/v1"
 
 	r := gin.New()
@@ -55,7 +55,7 @@ func main() {
 
 	api := r.Group(globalPrefix)
 	{
-		api.GET("/", func(ctx *gin.Context) {
+		api.GET("", func(ctx *gin.Context) {
 			ctx.JSON(200, gin.H{
 				"code":    200,
 				"status":  true,
