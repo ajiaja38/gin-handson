@@ -18,6 +18,6 @@ type Users struct {
 }
 
 func (user *Users) BeforeCreate(db *gorm.DB) error {
-	user.ID = uuid.New().String()
+	user.ID = "user-" + uuid.New().String()
 	return nil
 }
