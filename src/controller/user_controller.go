@@ -69,3 +69,26 @@ func (c *UserController) GetAllUsersHandler(ctx *gin.Context) {
 		"data":    users,
 	})
 }
+
+func (c *UserController) GetUserByIdHandler(ctx *gin.Context) {
+	id := ctx.Params.ByName("id")
+
+	user, err := c.userService.GetUserById(id)
+
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    http.StatusNotFound,
+			"status":  false,
+			"message": err.Error(),
+		})
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"status":  true,
+		"message": "Get user by id successfully",
+		"data":    user,
+	})
+}

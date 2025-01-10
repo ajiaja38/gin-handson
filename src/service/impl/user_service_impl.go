@@ -64,8 +64,16 @@ func (s *UserServiceImpl) GetAllUsers() ([]model.Users, error) {
 	return users, nil
 }
 
-func (s *UserServiceImpl) GetUserById(id uint) (*model.Users, error) {
-	panic("unimplemented")
+func (s *UserServiceImpl) GetUserById(id string) (*model.Users, error) {
+	var user model.Users
+
+	err := s.db.First(&user, "id = ?", id).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 func (s *UserServiceImpl) VerifyPassword(hashedPassword string, password string) error {
