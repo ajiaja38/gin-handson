@@ -54,9 +54,7 @@ func (s *UserServiceImpl) CreateUser(userDto *dto.CreateUserDTO) (*model.Users, 
 func (s *UserServiceImpl) GetAllUsers() ([]model.Users, error) {
 	var users []model.Users
 
-	err := s.db.Raw("SELECT * FROM users").Scan(&users).Error
-
-	if err != nil {
+	if err := s.db.Raw("SELECT * FROM users").Scan(&users).Error; err != nil {
 		return nil, err
 	}
 
