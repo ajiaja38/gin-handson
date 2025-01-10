@@ -2,7 +2,6 @@ package impl
 
 import (
 	"errors"
-	"fmt"
 	"res-gin/src/dto"
 	"res-gin/src/model"
 	"res-gin/src/service"
@@ -57,8 +56,6 @@ func (s *UserServiceImpl) GetAllUsers() ([]model.Users, error) {
 	if err := s.db.Raw("SELECT * FROM users").Scan(&users).Error; err != nil {
 		return nil, err
 	}
-
-	fmt.Println(users)
 
 	return users, nil
 }
