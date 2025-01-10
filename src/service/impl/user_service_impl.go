@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"errors"
 	"fmt"
 	"res-gin/src/dto"
 	"res-gin/src/model"
@@ -67,10 +68,14 @@ func (s *UserServiceImpl) GetAllUsers() ([]model.Users, error) {
 func (s *UserServiceImpl) GetUserById(id string) (*model.Users, error) {
 	var user model.Users
 
-	err := s.db.First(&user, "id = ?", id).Error
+	result := s.db.Raw("SELECT * FROM users WHERE id = ?", id).Scan(&user)
 
-	if err != nil {
-		return nil, err
+	if result.RowsAffected == 0 {
+		return nil, errors.New("User Not Found")
+	}
+
+	if result.Error != nil {
+		return nil, result.Error
 	}
 
 	return &user, nil
