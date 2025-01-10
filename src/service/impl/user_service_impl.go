@@ -76,6 +76,14 @@ func (s *UserServiceImpl) GetUserById(id string) (*model.Users, error) {
 	return &user, nil
 }
 
+func (s *UserServiceImpl) DeleteUsers(id string) error {
+	if err := s.db.Delete(&model.Users{}, "id = ?", id).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *UserServiceImpl) VerifyPassword(hashedPassword string, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
