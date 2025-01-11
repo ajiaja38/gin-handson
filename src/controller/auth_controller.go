@@ -50,3 +50,36 @@ func (c *AuthController) LoginHandler(ctx *gin.Context) {
 		"data":    token,
 	})
 }
+
+func (c *AuthController) RefreshTokenHandler(ctx *gin.Context) {
+	var refreshTokenDto dto.RefreshTokenDTO
+
+	if err := ctx.ShouldBindJSON(&refreshTokenDto); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"status":  false,
+			"message": err.Error(),
+		})
+
+		return
+	}
+
+	AccessToken, err := c.authService.RefreshToken(&refreshTokenDto)
+
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"status":  false,
+			"message": err.Error(),
+		})
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"status":  true,
+		"message": "Refresh token successfully",
+		"data":    AccessToken,
+	})
+}

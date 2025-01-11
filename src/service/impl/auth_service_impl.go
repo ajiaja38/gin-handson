@@ -6,10 +6,10 @@ import (
 	"res-gin/src/dto"
 	"res-gin/src/model"
 	"res-gin/src/service"
+	"res-gin/src/utils"
 	"time"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -19,10 +19,11 @@ type AuthServiceImpl struct {
 	vaildate *validator.Validate
 }
 
-type UserClaims struct {
-	UserID string `json:"user_id"`
-	jwt.RegisteredClaims
-}
+var (
+	accessTokenSecretKey  []byte = []byte(os.Getenv("SECRET_ACCESS_TOKEN"))
+	refreshTokenSecretKey []byte = []byte(os.Getenv("SECRET_REFRESH_TOKEN"))
+	ErrUserNotFound       error  = errors.New("Invalid Username or Password")
+)
 
 func NewAuthServiceImpl(db *gorm.DB) service.AuthService {
 	return &AuthServiceImpl{
@@ -32,9 +33,6 @@ func NewAuthServiceImpl(db *gorm.DB) service.AuthService {
 }
 
 func (s *AuthServiceImpl) LoginUser(loginDto *dto.LoginDTO) (*dto.LoginResponseDTO, error) {
-	accessTokenSecretKey := []byte(os.Getenv("SECRET_ACCESS_TOKEN"))
-	refreshTokenSecretKey := []byte(os.Getenv("SECRET_REFRESH_TOKEN"))
-
 	err := s.vaildate.Struct(loginDto)
 
 	if err != nil {
@@ -44,20 +42,20 @@ func (s *AuthServiceImpl) LoginUser(loginDto *dto.LoginDTO) (*dto.LoginResponseD
 	var user model.Users
 
 	if err := s.db.Where("email =?", loginDto.Email).First(&user).Error; err != nil {
-		return nil, errors.New("Invalid Username or Password")
+		return nil, ErrUserNotFound
 	}
 
 	if err := s.verifyPassword(user.Password, loginDto.Password); err != nil {
-		return nil, errors.New("Invalid Username or Password")
+		return nil, ErrUserNotFound
 	}
 
-	accessToken, err := s.generateToken(user.ID, time.Hour, accessTokenSecretKey)
+	accessToken, err := utils.GenerateToken(user.ID, time.Hour, accessTokenSecretKey)
 
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := s.generateToken(user.ID, time.Hour*24*7, refreshTokenSecretKey)
+	refreshToken, err := utils.GenerateToken(user.ID, time.Hour*24*7, refreshTokenSecretKey)
 
 	if err != nil {
 		return nil, err
@@ -71,18 +69,32 @@ func (s *AuthServiceImpl) LoginUser(loginDto *dto.LoginDTO) (*dto.LoginResponseD
 	return response, nil
 }
 
-func (s *AuthServiceImpl) generateToken(id string, duration time.Duration, secret []byte) (string, error) {
-	claims := &UserClaims{
-		UserID: id,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		},
+func (s *AuthServiceImpl) RefreshToken(refreshTokenDto *dto.RefreshTokenDTO) (*dto.RefreshTokenResponseDTO, error) {
+	err := s.vaildate.Struct(refreshTokenDto)
+
+	if err != nil {
+		return nil, err
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	claims := &model.UserClaims{}
 
-	return token.SignedString(secret)
+	err = utils.ValidateToken(refreshTokenDto.RefreshToken, refreshTokenSecretKey, claims)
+
+	if err != nil {
+		return nil, err
+	}
+
+	newAccessToken, err := utils.GenerateToken(claims.UserID, time.Hour, accessTokenSecretKey)
+
+	if err != nil {
+		return nil, err
+	}
+
+	response := &dto.RefreshTokenResponseDTO{
+		AccessToken: newAccessToken,
+	}
+
+	return response, nil
 }
 
 func (s *AuthServiceImpl) verifyPassword(hashedPassword string, password string) error {

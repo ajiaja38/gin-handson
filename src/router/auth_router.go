@@ -12,5 +12,9 @@ func AuthRouter(api *gin.RouterGroup, db *gorm.DB) {
 	authService := impl.NewAuthServiceImpl(db)
 	authController := controller.NewAuthController(authService)
 
-	api.POST("login", authController.LoginHandler)
+	authRouter := api.Group("auth")
+	{
+		authRouter.POST("login", authController.LoginHandler)
+		authRouter.PATCH("refresh-token", authController.RefreshTokenHandler)
+	}
 }
