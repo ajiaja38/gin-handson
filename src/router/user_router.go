@@ -11,7 +11,7 @@ import (
 )
 
 func RegisterUserRoutes(api *gin.RouterGroup, db *gorm.DB) {
-	db.AutoMigrate(&model.Users{})
+	db.AutoMigrate(&model.Users{}, &model.Role{})
 
 	userService := impl.NewUserService(db)
 	userController := controller.NewUserController(userService)

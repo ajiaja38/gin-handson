@@ -41,7 +41,6 @@ func (s *UserServiceImpl) CreateUser(userDto *dto.CreateUserDTO) (*model.Users, 
 		Email:    userDto.Email,
 		Username: userDto.Username,
 		Password: string(hashedPassword),
-		Role:     userDto.Role,
 	}
 
 	if err := s.db.Create(user).Error; err != nil {
