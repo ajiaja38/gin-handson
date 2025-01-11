@@ -51,7 +51,7 @@ func (s *AuthServiceImpl) LoginUser(loginDto *dto.LoginDTO) (*dto.LoginResponseD
 		return nil, errors.New("Invalid Username or Password")
 	}
 
-	accessToken, err := s.generateToken(user.ID, time.Minute*15, accessTokenSecretKey)
+	accessToken, err := s.generateToken(user.ID, time.Hour, accessTokenSecretKey)
 
 	if err != nil {
 		return nil, err

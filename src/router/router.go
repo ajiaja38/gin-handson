@@ -7,4 +7,5 @@ import (
 
 func SetupRouter(api *gin.RouterGroup, db *gorm.DB) {
 	RegisterUserRoutes(api, db)
+	AuthRouter(api, db)
 }

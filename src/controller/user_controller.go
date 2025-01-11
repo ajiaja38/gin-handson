@@ -92,3 +92,23 @@ func (c *UserController) GetUserByIdHandler(ctx *gin.Context) {
 		"data":    user,
 	})
 }
+
+func (c *UserController) DeleteUserByIdHandler(ctx *gin.Context) {
+	id := ctx.Params.ByName("id")
+
+	if err := c.userService.DeleteUsers(id); err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    http.StatusNotFound,
+			"status":  false,
+			"message": err.Error(),
+		})
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"status":  true,
+		"message": "Delete user by id successfully",
+	})
+}

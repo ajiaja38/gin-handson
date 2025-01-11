@@ -10,5 +10,4 @@ type UserService interface {
 	GetUserById(id string) (*model.Users, error)
 	GetAllUsers() ([]model.Users, error)
 	DeleteUsers(id string) error
-	VerifyPassword(hashedPassword, password string) error
 }

@@ -2,6 +2,7 @@ package impl
 
 import (
 	"errors"
+	"fmt"
 	"res-gin/src/dto"
 	"res-gin/src/model"
 	"res-gin/src/service"
@@ -77,13 +78,15 @@ func (s *UserServiceImpl) GetUserById(id string) (*model.Users, error) {
 }
 
 func (s *UserServiceImpl) DeleteUsers(id string) error {
-	if err := s.db.Delete(&model.Users{}, "id = ?", id).Error; err != nil {
-		return err
+	result := s.db.Delete(&model.Users{}, "id = ?", id)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("User with id %s not found", id)
 	}
 
 	return nil
-}
-
-func (s *UserServiceImpl) VerifyPassword(hashedPassword string, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }

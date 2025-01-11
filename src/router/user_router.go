@@ -15,7 +15,8 @@ func RegisterUserRoutes(api *gin.RouterGroup, db *gorm.DB) {
 	userService := impl.NewUserService(db)
 	userController := controller.NewUserController(userService)
 
-	api.POST("/user", userController.CreateUserHandler)
-	api.GET("/users", userController.GetAllUsersHandler)
-	api.GET("/user/:id", userController.GetUserByIdHandler)
+	api.POST("user", userController.CreateUserHandler)
+	api.GET("users", userController.GetAllUsersHandler)
+	api.GET("user/:id", userController.GetUserByIdHandler)
+	api.DELETE("user/:id", userController.DeleteUserByIdHandler)
 }
