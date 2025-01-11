@@ -2,6 +2,7 @@ package router
 
 import (
 	"res-gin/src/controller"
+	"res-gin/src/middleware"
 	"res-gin/src/model"
 	"res-gin/src/service/impl"
 
@@ -15,8 +16,14 @@ func RegisterUserRoutes(api *gin.RouterGroup, db *gorm.DB) {
 	userService := impl.NewUserService(db)
 	userController := controller.NewUserController(userService)
 
-	api.POST("user", userController.CreateUserHandler)
-	api.GET("users", userController.GetAllUsersHandler)
-	api.GET("user/:id", userController.GetUserByIdHandler)
-	api.DELETE("user/:id", userController.DeleteUserByIdHandler)
+	userRouter := api.Group("user")
+	{
+		userRouter.POST("register", userController.CreateUserHandler)
+		userRouter.Use(middleware.JWTAuthGuard())
+		{
+			userRouter.GET("", userController.GetAllUsersHandler)
+			userRouter.GET(":id", userController.GetUserByIdHandler)
+			userRouter.DELETE(":id", userController.DeleteUserByIdHandler)
+		}
+	}
 }
