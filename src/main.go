@@ -19,7 +19,7 @@ func init() {
 	err := godotenv.Load()
 
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("Error loading .env file, please check your .env file")
 	}
 
 	log.SetFormatter(&logrus.TextFormatter{
