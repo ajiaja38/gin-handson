@@ -14,7 +14,7 @@ type Users struct {
 	Password  string    `gorm:"type:varchar(255); not null" json:"password"`
 	CreatedAt time.Time `gorm:"not null" json:"created_at"`
 	UpdatedAt time.Time `gorm:"not null" json:"updated_at"`
-	Roles     []Role    `gorm:"many2many:user_roles; foreignKey:id; joinForeignKey:user_id; joinReferences:role_id;references:ID" json:"roles"`
+	Roles     []Role    `gorm:"many2many:user_roles" json:"roles"`
 }
 
 func (user *Users) BeforeCreate(db *gorm.DB) error {

@@ -1,7 +1,7 @@
 package impl
 
 import (
-	"fmt"
+	"log"
 	"res-gin/src/enum"
 	"res-gin/src/model"
 	"res-gin/src/service"
@@ -22,24 +22,20 @@ func NewRoleServiceImpl(db *gorm.DB) service.RoleService {
 func (s *RoleServiceImpl) GetOrSaveRole(role enum.ERole) (*model.Role, error) {
 	var existRole model.Role
 
-	err := s.db.Where("role = ?", role).First(&existRole).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			newRole := &model.Role{
-				Role: role,
-			}
+	if err := s.db.Where("role = ?", role).First(&existRole).Error; err == nil {
+		log.Println("Existing Role Found:", existRole.ID, existRole.Role)
+		return &existRole, nil
+	}
 
-			fmt.Print(newRole)
+	newRole := &model.Role{
+		Role: role,
+	}
 
-			if err := s.db.Create(&newRole).Error; err != nil {
-				return nil, err
-			}
-
-			return newRole, nil
-		}
-
+	if err := s.db.Create(&newRole).Error; err != nil {
+		log.Println("Error Creating Role:", err)
 		return nil, err
 	}
 
-	return &existRole, nil
+	log.Println("New Role Created:", newRole.ID, newRole.Role)
+	return newRole, nil
 }
