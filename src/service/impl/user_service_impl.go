@@ -13,14 +13,18 @@ import (
 )
 
 type UserServiceImpl struct {
-	db       *gorm.DB
-	validate *validator.Validate
+	db          *gorm.DB
+	validate    *validator.Validate
+	roleService service.RoleService
 }
 
 func NewUserService(db *gorm.DB) service.UserService {
+	roleService := NewRoleServiceImpl(db)
+
 	return &UserServiceImpl{
-		db:       db,
-		validate: validator.New(),
+		db:          db,
+		validate:    validator.New(),
+		roleService: roleService,
 	}
 }
 
