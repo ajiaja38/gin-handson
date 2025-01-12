@@ -3,6 +3,7 @@ package impl
 import (
 	"errors"
 	"fmt"
+	"log"
 	"res-gin/src/dto"
 	"res-gin/src/model"
 	"res-gin/src/service"
@@ -41,13 +42,42 @@ func (s *UserServiceImpl) CreateUser(userDto *dto.CreateUserDTO) (*model.Users, 
 		return nil, err
 	}
 
+	tx := s.db.Begin()
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
 	user := &model.Users{
 		Email:    userDto.Email,
 		Username: userDto.Username,
 		Password: string(hashedPassword),
 	}
 
-	if err := s.db.Create(user).Error; err != nil {
+	if err := tx.Create(&user).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	role, err := s.roleService.GetOrSaveRole(userDto.Role)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Model(&user).Association("Roles").Append(role); err != nil {
+		log.Println("Error appending role:", err)
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}
 
