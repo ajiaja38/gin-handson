@@ -74,7 +74,7 @@ func (s *UserServiceImpl) CreateUser(userDto *dto.CreateUserDTO) (*model.Users, 
 	}
 
 	userRolesQuery := `INSERT INTO user_roles (users_id, role_id)
-									 VALUES ($1, $2) ON CONFLICT (users_id, role_id) DO NOTHING`
+									   VALUES ($1, $2) ON CONFLICT (users_id, role_id) DO NOTHING`
 
 	if err := tx.Exec(userRolesQuery, user.ID, role.ID).Error; err != nil {
 		tx.Rollback()
