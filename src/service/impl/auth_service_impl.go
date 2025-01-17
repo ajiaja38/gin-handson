@@ -22,7 +22,7 @@ type AuthServiceImpl struct {
 var (
 	accessTokenSecretKey  []byte = []byte(os.Getenv("SECRET_ACCESS_TOKEN"))
 	refreshTokenSecretKey []byte = []byte(os.Getenv("SECRET_REFRESH_TOKEN"))
-	ErrUserNotFound       error  = errors.New("Invalid Username or Password")
+	ErrUserNotFound       error  = errors.New("invalid username or password")
 )
 
 func NewAuthServiceImpl(db *gorm.DB) service.AuthService {

@@ -104,7 +104,7 @@ func (s *UserServiceImpl) GetUserById(id string) (*model.Users, error) {
 	result := s.db.Raw("SELECT * FROM users WHERE id = ?", id).Scan(&user)
 
 	if result.RowsAffected == 0 {
-		return nil, errors.New("User Not Found")
+		return nil, errors.New("user not found")
 	}
 
 	if result.Error != nil {
@@ -122,7 +122,7 @@ func (s *UserServiceImpl) DeleteUsers(id string) error {
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("User with id %s not found", id)
+		return fmt.Errorf("user with id %s not found", id)
 	}
 
 	return nil
