@@ -2,10 +2,12 @@ root = "."
 testdata_dir = "testdata"
 tmp_dir = "tmp"
 
+# if in non windows os, remove .exe format in bin and cmd
+
 [build]
   args_bin = []
-  bin = "./tmp/main"
-  cmd = "go build -o ./tmp/main ./src"
+  bin = "./tmp/main.exe"
+  cmd = "go build -o ./tmp/main.exe ./src"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []
